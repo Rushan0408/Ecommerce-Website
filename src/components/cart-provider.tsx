@@ -4,72 +4,88 @@ import type React from "react"
 
 import { createContext, useContext, useState, useEffect } from "react"
 import type { Product } from "@/lib/types"
-
-type CartItem = {
-  product: Product
-  quantity: number
-}
+import * as cartApi from "@/lib/api/cart"
+import { useAuth } from "./auth-provider"
 
 type CartContextType = {
-  cartItems: CartItem[]
-  addToCart: (product: Product, quantity?: number) => void
-  removeFromCart: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
-  clearCart: () => void
+  cartItems: cartApi.CartItem[]
+  addToCart: (product: Product, quantity?: number) => Promise<void>
+  removeFromCart: (itemId: string) => Promise<void>
+  updateQuantity: (itemId: string, quantity: number) => Promise<void>
+  clearCart: () => Promise<void>
   getCartTotal: () => number
+  isLoading: boolean
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [cartItems, setCartItems] = useState<cartApi.CartItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { user } = useAuth()
 
-  // Load cart from localStorage on initial render
+  // Load cart from API when user changes
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart")
-    if (savedCart) {
-      try {
-        setCartItems(JSON.parse(savedCart))
-      } catch (error) {
-        console.error("Failed to parse cart from localStorage:", error)
-      }
-    }
-  }, [])
-
-  // Save cart to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems))
-  }, [cartItems])
-
-  const addToCart = (product: Product, quantity = 1) => {
-    setCartItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.product.id === product.id)
-
-      if (existingItem) {
-        return prevItems.map((item) =>
-          item.product.id === product.id ? { ...item, quantity: item.quantity + quantity } : item,
-        )
+    const loadCart = async () => {
+      if (user) {
+        try {
+          const items = await cartApi.getCart()
+          setCartItems(items)
+        } catch (error) {
+          console.error("Failed to load cart:", error)
+        }
       } else {
-        return [...prevItems, { product, quantity }]
+        setCartItems([])
       }
-    })
+      setIsLoading(false)
+    }
+
+    loadCart()
+  }, [user])
+
+  const addToCart = async (product: Product, quantity = 1) => {
+    try {
+      const updatedCart = await cartApi.addToCart(product.id, quantity)
+      setCartItems(updatedCart)
+    } catch (error) {
+      console.error("Failed to add item to cart:", error)
+      throw error
+    }
   }
 
-  const removeFromCart = (productId: string) => {
-    setCartItems((prevItems) => prevItems.filter((item) => item.product.id !== productId))
+  const removeFromCart = async (itemId: string) => {
+    try {
+      const updatedCart = await cartApi.removeFromCart(itemId)
+      setCartItems(updatedCart)
+    } catch (error) {
+      console.error("Failed to remove item from cart:", error)
+      throw error
+    }
   }
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = async (itemId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId)
+      await removeFromCart(itemId)
       return
     }
 
-    setCartItems((prevItems) => prevItems.map((item) => (item.product.id === productId ? { ...item, quantity } : item)))
+    try {
+      const updatedCart = await cartApi.updateCartItem(itemId, quantity)
+      setCartItems(updatedCart)
+    } catch (error) {
+      console.error("Failed to update cart item:", error)
+      throw error
+    }
   }
 
-  const clearCart = () => {
-    setCartItems([])
+  const clearCart = async () => {
+    try {
+      await cartApi.clearCart()
+      setCartItems([])
+    } catch (error) {
+      console.error("Failed to clear cart:", error)
+      throw error
+    }
   }
 
   const getCartTotal = () => {
@@ -85,6 +101,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         updateQuantity,
         clearCart,
         getCartTotal,
+        isLoading,
       }}
     >
       {children}

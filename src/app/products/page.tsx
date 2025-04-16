@@ -15,7 +15,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import { cn } from "@/lib/utils"
 import { Slider } from "@/components/ui/slider"
 import { useCart } from "@/components/cart-provider"
-import { products } from "@/lib/data"
+import * as productsApi from "@/lib/api/products"
 import type { Product } from "@/lib/types"
 
 export default function ProductsPage() {
@@ -25,46 +25,50 @@ export default function ProductsPage() {
   // Get initial category from URL if present
   const initialCategory = searchParams.get("category") || ""
 
-  // State for filters
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products)
+  // State for filters and loading
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory)
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
   const [minRating, setMinRating] = useState<number>(0)
   const [sortOption, setSortOption] = useState<string>("featured")
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Get unique categories
-  const categories = [...new Set(products.map((product) => product.category))]
+  // Get categories
+  const [categories, setCategories] = useState<string[]>([])
 
-  // Filter and sort products
   useEffect(() => {
-    let result = [...products]
-
-    // Apply category filter
-    if (selectedCategory) {
-      result = result.filter((product) => product.category === selectedCategory)
+    const loadCategories = async () => {
+      try {
+        const categories = await productsApi.getCategories()
+        setCategories(categories)
+      } catch (error) {
+        console.error('Failed to load categories:', error)
+      }
     }
+    loadCategories()
+  }, [])
 
-    // Apply price range filter
-    result = result.filter((product) => product.price >= priceRange[0] && product.price <= priceRange[1])
-
-    // Apply rating filter
-    result = result.filter((product) => product.rating >= minRating)
-
-    // Apply sorting
-    switch (sortOption) {
-      case "price-low-high":
-        result.sort((a, b) => a.price - b.price)
-        break
-      case "price-high-low":
-        result.sort((a, b) => b.price - a.price)
-        break
-      case "rating":
-        result.sort((a, b) => b.rating - a.rating)
-        break
-      // Default is "featured" - no sorting needed
+  // Fetch and filter products
+  useEffect(() => {
+    const loadProducts = async () => {
+      setIsLoading(true)
+      try {
+        const products = await productsApi.getProducts({
+          category: selectedCategory,
+          minPrice: priceRange[0],
+          maxPrice: priceRange[1],
+          minRating,
+          sort: sortOption,
+        })
+        setFilteredProducts(products)
+      } catch (error) {
+        console.error('Failed to load products:', error)
+        setFilteredProducts([])
+      } finally {
+        setIsLoading(false)
+      }
     }
-
-    setFilteredProducts(result)
+    loadProducts()
   }, [selectedCategory, priceRange, minRating, sortOption])
 
   return (
@@ -271,7 +275,11 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          {filteredProducts.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <h2 className="text-xl font-medium">Loading products...</h2>
+            </div>
+          ) : filteredProducts.length === 0 ? (
             <div className="text-center py-12">
               <h2 className="text-xl font-medium">No products found</h2>
               <p className="text-gray-500 mt-2">Try adjusting your filters</p>

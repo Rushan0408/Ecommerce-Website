@@ -4,59 +4,76 @@ import type React from "react"
 
 import { createContext, useContext, useState, useEffect } from "react"
 import type { Product } from "@/lib/types"
+import * as wishlistApi from "@/lib/api/wishlist"
+import { useAuth } from "./auth-provider"
 
 type WishlistContextType = {
-  wishlistItems: Product[]
-  addToWishlist: (product: Product) => void
-  removeFromWishlist: (productId: string) => void
+  wishlistItems: wishlistApi.WishlistItem[]
+  addToWishlist: (product: Product) => Promise<void>
+  removeFromWishlist: (itemId: string) => Promise<void>
   isInWishlist: (productId: string) => boolean
-  clearWishlist: () => void
+  clearWishlist: () => Promise<void>
+  isLoading: boolean
 }
 
 const WishlistContext = createContext<WishlistContextType | undefined>(undefined)
 
 export function WishlistProvider({ children }: { children: React.ReactNode }) {
-  const [wishlistItems, setWishlistItems] = useState<Product[]>([])
+  const [wishlistItems, setWishlistItems] = useState<wishlistApi.WishlistItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { user } = useAuth()
 
-  // Load wishlist from localStorage on initial render
+  // Load wishlist from API when user changes
   useEffect(() => {
-    const savedWishlist = localStorage.getItem("wishlist")
-    if (savedWishlist) {
-      try {
-        setWishlistItems(JSON.parse(savedWishlist))
-      } catch (error) {
-        console.error("Failed to parse wishlist from localStorage:", error)
-      }
-    }
-  }, [])
-
-  // Save wishlist to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("wishlist", JSON.stringify(wishlistItems))
-  }, [wishlistItems])
-
-  const addToWishlist = (product: Product) => {
-    setWishlistItems((prevItems) => {
-      const existingItem = prevItems.find((item) => item.id === product.id)
-
-      if (existingItem) {
-        return prevItems
+    const loadWishlist = async () => {
+      if (user) {
+        try {
+          const items = await wishlistApi.getWishlist()
+          setWishlistItems(items)
+        } catch (error) {
+          console.error("Failed to load wishlist:", error)
+        }
       } else {
-        return [...prevItems, product]
+        setWishlistItems([])
       }
-    })
+      setIsLoading(false)
+    }
+
+    loadWishlist()
+  }, [user])
+
+  const addToWishlist = async (product: Product) => {
+    try {
+      const updatedWishlist = await wishlistApi.addToWishlist(product.id)
+      setWishlistItems(updatedWishlist)
+    } catch (error) {
+      console.error("Failed to add item to wishlist:", error)
+      throw error
+    }
   }
 
-  const removeFromWishlist = (productId: string) => {
-    setWishlistItems((prevItems) => prevItems.filter((item) => item.id !== productId))
+  const removeFromWishlist = async (itemId: string) => {
+    try {
+      const updatedWishlist = await wishlistApi.removeFromWishlist(itemId)
+      setWishlistItems(updatedWishlist)
+    } catch (error) {
+      console.error("Failed to remove item from wishlist:", error)
+      throw error
+    }
   }
 
   const isInWishlist = (productId: string) => {
-    return wishlistItems.some((item) => item.id === productId)
+    return wishlistItems.some((item) => item.productId === productId)
   }
 
-  const clearWishlist = () => {
-    setWishlistItems([])
+  const clearWishlist = async () => {
+    try {
+      await wishlistApi.clearWishlist()
+      setWishlistItems([])
+    } catch (error) {
+      console.error("Failed to clear wishlist:", error)
+      throw error
+    }
   }
 
   return (
@@ -67,6 +84,7 @@ export function WishlistProvider({ children }: { children: React.ReactNode }) {
         removeFromWishlist,
         isInWishlist,
         clearWishlist,
+        isLoading,
       }}
     >
       {children}

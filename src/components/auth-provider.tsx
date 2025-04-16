@@ -4,86 +4,69 @@ import type React from "react"
 
 import { createContext, useContext, useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
-import { users } from "@/lib/data"
-
-type User = {
-  id: string
-  name: string
-  email: string
-  isAdmin: boolean
-}
+import * as authApi from "@/lib/api/auth"
 
 type AuthContextType = {
-  user: User | null
+  user: authApi.User | null
   login: (email: string, password: string) => Promise<boolean>
   register: (name: string, email: string, password: string) => Promise<boolean>
-  logout: () => void
+  logout: () => Promise<void>
+  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<authApi.User | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
-  // Load user from localStorage on initial render
+  // Check for current user session
   useEffect(() => {
-    const savedUser = localStorage.getItem("user")
-    if (savedUser) {
+    const checkAuth = async () => {
       try {
-        setUser(JSON.parse(savedUser))
+        const user = await authApi.getCurrentUser()
+        setUser(user)
       } catch (error) {
-        console.error("Failed to parse user from localStorage:", error)
+        console.error("Failed to get current user:", error)
+      } finally {
+        setIsLoading(false)
       }
     }
+
+    checkAuth()
   }, [])
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const foundUser = users.find((u) => u.email === email && u.password === password)
-
-        if (foundUser) {
-          const { password, ...userWithoutPassword } = foundUser
-          setUser(userWithoutPassword)
-          localStorage.setItem("user", JSON.stringify(userWithoutPassword))
-          resolve(true)
-        } else {
-          resolve(false)
-        }
-      }, 500)
-    })
+    try {
+      const { user } = await authApi.login({ email, password })
+      setUser(user)
+      return true
+    } catch (error) {
+      console.error("Login failed:", error)
+      return false
+    }
   }
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
-    // Simulate API call
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const existingUser = users.find((u) => u.email === email)
-
-        if (existingUser) {
-          resolve(false)
-        } else {
-          const newUser = {
-            id: `user-${Date.now()}`,
-            name,
-            email,
-            isAdmin: false,
-          }
-
-          setUser(newUser)
-          localStorage.setItem("user", JSON.stringify(newUser))
-          resolve(true)
-        }
-      }, 500)
-    })
+    try {
+      const { user } = await authApi.register({ name, email, password })
+      setUser(user)
+      return true
+    } catch (error) {
+      console.error("Registration failed:", error)
+      return false
+    }
   }
 
-  const logout = () => {
-    setUser(null)
-    localStorage.removeItem("user")
-    router.push("/")
+  const logout = async () => {
+    try {
+      await authApi.logout()
+      setUser(null)
+      router.push("/")
+    } catch (error) {
+      console.error("Logout failed:", error)
+    }
   }
 
   return (
@@ -93,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        isLoading,
       }}
     >
       {children}

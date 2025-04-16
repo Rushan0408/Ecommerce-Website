@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useParams, notFound } from "next/navigation"
 import Link from "next/link"
 import { ChevronRight, Heart, Minus, Plus, Share2, ShoppingBag, Star } from "lucide-react"
@@ -10,7 +10,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useCart } from "@/components/cart-provider"
 import { useWishlist } from "@/components/wishlist-provider"
-import { products } from "@/lib/data"
+import * as productsApi from "@/lib/api/products"
+import type { Product } from "@/lib/types"
 
 export default function ProductPage() {
   const params = useParams()
@@ -18,17 +19,43 @@ export default function ProductPage() {
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist()
   const [quantity, setQuantity] = useState(1)
   const [activeImage, setActiveImage] = useState(0)
+  const [product, setProduct] = useState<Product | null>(null)
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  // Find the product by ID
-  const product = products.find((p) => p.id === params.id)
+  // Fetch product and related products
+  useEffect(() => {
+    const loadProduct = async () => {
+      try {
+        const [productData, relatedData] = await Promise.all([
+          productsApi.getProduct(params.id as string),
+          productsApi.getRelatedProducts(params.id as string)
+        ])
+        setProduct(productData)
+        setRelatedProducts(relatedData)
+      } catch (error) {
+        console.error('Failed to load product:', error)
+        notFound()
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    loadProduct()
+  }, [params.id])
 
-  // If product not found, show 404
+  if (isLoading) {
+    return (
+      <div className="container px-4 py-8 md:py-12">
+        <div className="text-center">
+          <h2 className="text-xl font-medium">Loading product...</h2>
+        </div>
+      </div>
+    )
+  }
+
   if (!product) {
     notFound()
   }
-
-  // Get related products (same category, excluding current product)
-  const relatedProducts = products.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 4)
 
   const handleAddToCart = () => {
     addToCart(product, quantity)
