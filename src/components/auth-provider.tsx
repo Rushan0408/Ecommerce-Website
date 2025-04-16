@@ -50,12 +50,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = async (name: string, email: string, password: string): Promise<boolean> => {
     try {
-      const { user } = await authApi.register({ name, email, password })
-      setUser(user)
-      return true
+      console.log('Auth provider register called with:', { name, email, password });
+      // Call the API register function with the user data
+      const result = await authApi.register({ name, email, password });
+      console.log('Register API result:', result);
+      
+      // Update the user state with the returned user data
+      if (result && result.user) {
+        setUser(result.user);
+        return true;
+      } else {
+        console.error('Registration returned invalid user data');
+        return false;
+      }
     } catch (error) {
-      console.error("Registration failed:", error)
-      return false
+      console.error("Registration failed:", error);
+      return false;
     }
   }
 

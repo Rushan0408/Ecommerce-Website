@@ -25,8 +25,6 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    alert('Register button clicked!');
-    console.log('Register button clicked!');
     e.preventDefault()
     setError("")
 
@@ -38,14 +36,18 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
-      console.log('Attempting registration...');
+      // Call the register function from auth provider which calls the API
       const success = await register(name, email, password)
-      console.log('Registration result:', success);
+      
       if (success) {
+        // Redirect to home page on successful registration
         router.push("/")
+      } else {
+        // If register returns false but doesn't throw an error
+        setError("Registration failed. Please try again.")
       }
     } catch (err: any) {
-      console.error('Registration error in component:', err);
+      // Handle specific error messages
       if (err.message === "Email is already taken") {
         setError("Email already in use")
       } else {
@@ -61,7 +63,6 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>Enter your information to create an account</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
@@ -69,7 +70,7 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="John Doe" value={name} onChange={(e) => setName(e.target.value)} required />
+              <Input id="name" placeholder="" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
 
             <div className="space-y-2">
@@ -77,7 +78,7 @@ export default function RegisterPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="john.doe@example.com"
+                placeholder=""
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -90,7 +91,7 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="••••••••"
+                  placeholder=""
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -113,7 +114,7 @@ export default function RegisterPage() {
               <Input
                 id="confirm-password"
                 type="password"
-                placeholder="••••••••"
+                placeholder=""
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required

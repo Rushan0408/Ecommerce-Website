@@ -24,6 +24,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody RegisterRequest request) {
+        System.out.println("register called...................................................");
         String token = authService.register(request);
         return ResponseEntity.ok(Map.of("token", token));
     }

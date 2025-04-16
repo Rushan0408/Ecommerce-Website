@@ -31,6 +31,7 @@ export async function login(credentials: LoginCredentials) {
 export async function register(data: RegisterData) {
   console.log('Registering with data:', data);
   try {
+    // Make sure we're sending the correct data format to the backend
     const response = await fetch(`${API_BASE_URL}/auth/register`, {
       method: 'POST',
       headers: { 
@@ -42,14 +43,20 @@ export async function register(data: RegisterData) {
     });
     
     console.log('Registration response status:', response.status);
+    
+    // Parse the response data
     const responseData = await response.json();
     console.log('Registration response:', responseData);
 
+    // Check if the response indicates an error
     if (!response.ok) {
       throw new Error(responseData.message || 'Registration failed');
     }
 
+    // Extract the token from the response
     const { token } = responseData;
+    
+    // Get the current user information
     const user = await getCurrentUser();
     return { user, token };
   } catch (error) {
