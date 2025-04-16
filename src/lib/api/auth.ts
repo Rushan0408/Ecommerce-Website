@@ -29,14 +29,33 @@ export async function login(credentials: LoginCredentials) {
 }
 
 export async function register(data: RegisterData) {
-  const response = await fetch(`${API_BASE_URL}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  
-  if (!response.ok) throw new Error('Registration failed');
-  return response.json() as Promise<{ user: User; token: string }>;
+  console.log('Registering with data:', data);
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data),
+      credentials: 'include'
+    });
+    
+    console.log('Registration response status:', response.status);
+    const responseData = await response.json();
+    console.log('Registration response:', responseData);
+
+    if (!response.ok) {
+      throw new Error(responseData.message || 'Registration failed');
+    }
+
+    const { token } = responseData;
+    const user = await getCurrentUser();
+    return { user, token };
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
 }
 
 export async function logout() {

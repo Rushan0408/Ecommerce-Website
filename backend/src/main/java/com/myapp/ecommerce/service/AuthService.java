@@ -31,7 +31,7 @@ public class AuthService {
         return tokenProvider.createAccessToken(authentication);
     }
 
-    public void register(@Valid RegisterRequest request) {
+    public String register(@Valid RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RuntimeException("Email is already taken");
         }
@@ -45,6 +45,11 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        return tokenProvider.createAccessToken(authentication);
     }
 
     public User getCurrentUser() {

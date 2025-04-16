@@ -1,0 +1,50 @@
+[
+  {
+    "name": "iPhone 14 Pro",
+    "description": "Latest iPhone with advanced camera system",
+    "price": 999.99,
+    "originalPrice": 1099.99,
+    "category": "Electronics",
+    "image": "https://example.com/iphone14pro.jpg",
+    "rating": 4.8,
+    "onSale": true,
+    "specifications": {
+      "storage": "256GB",
+      "color": "Space Black",
+      "screen": "6.1-inch"
+    },
+    "reviews": [
+      {
+        "userId": "user1",
+        "userName": "John Doe",
+        "rating": 5,
+        "comment": "Great phone!",
+        "createdAt": "2025-04-15T12:00:00Z"
+      }
+    ],
+    "stock": 50,
+    "active": true,
+    "createdAt": "2025-04-15T00:00:00Z",
+    "updatedAt": "2025-04-15T00:00:00Z"
+  },
+  {
+    "name": "Samsung Galaxy S23",
+    "description": "Premium Android smartphone",
+    "price": 899.99,
+    "originalPrice": 999.99,
+    "category": "Electronics",
+    "image": "https://example.com/galaxys23.jpg",
+    "rating": 4.7,
+    "onSale": false,
+    "specifications": {
+      "storage": "512GB",
+      "color": "Phantom Black",
+      "screen": "6.8-inch"
+    },
+    "reviews": [],
+    "stock": 30,
+    "active": true,
+    "createdAt": "2025-04-15T00:00:00Z",
+    "updatedAt": "2025-04-15T00:00:00Z"
+  }
+]

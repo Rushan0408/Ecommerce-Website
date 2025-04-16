@@ -25,6 +25,8 @@ export default function RegisterPage() {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
+    alert('Register button clicked!');
+    console.log('Register button clicked!');
     e.preventDefault()
     setError("")
 
@@ -36,15 +38,19 @@ export default function RegisterPage() {
     setIsLoading(true)
 
     try {
+      console.log('Attempting registration...');
       const success = await register(name, email, password)
-
+      console.log('Registration result:', success);
       if (success) {
         router.push("/")
-      } else {
-        setError("Email already in use")
       }
-    } catch (err) {
-      setError("An error occurred. Please try again.")
+    } catch (err: any) {
+      console.error('Registration error in component:', err);
+      if (err.message === "Email is already taken") {
+        setError("Email already in use")
+      } else {
+        setError(err.message || "An error occurred. Please try again.")
+      }
     } finally {
       setIsLoading(false)
     }
