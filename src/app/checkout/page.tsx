@@ -188,13 +188,13 @@ export default function CheckoutPage() {
               <h2 className="text-xl font-bold mb-4">Order Summary</h2>
 
               <div className="space-y-4">
-                {cartItems.map((item) => (
-                  <div key={item.product.id} className="flex justify-between">
+                {cartItems.filter(item => item && item.product).map((item) => (
+                  <div key={item.id} className="flex justify-between">
                     <div className="flex items-center">
                       <span className="font-medium">{item.quantity} x</span>
                       <span className="ml-2 line-clamp-1">{item.product.name}</span>
                     </div>
-                    <span>${(item.product.price * item.quantity).toFixed(2)}</span>
+                    <span>${(Number(item.product.price) * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
 

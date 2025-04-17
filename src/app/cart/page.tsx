@@ -54,64 +54,70 @@ export default function CartPage() {
               <div className="font-medium text-right">Total</div>
             </div>
 
-            {cartItems.map((item) => (
-              <div key={item.product.id} className="border-t first:border-t-0">
-                <div className="grid md:grid-cols-5 gap-4 p-4 items-center">
-                  <div className="md:col-span-2 flex items-center gap-4">
-                    <Link href={`/products/${item.product.id}`}>
-                      <img
-                        src={item.product.image || "/placeholder.svg"}
-                        alt={item.product.name}
-                        className="w-16 h-16 object-cover rounded"
-                      />
-                    </Link>
-                    <div>
+            {cartItems.map((item) => {
+              if (!item || !item.product) {
+                return null;
+              }
+              
+              return (
+                <div key={item.id} className="border-t first:border-t-0">
+                  <div className="grid md:grid-cols-5 gap-4 p-4 items-center">
+                    <div className="md:col-span-2 flex items-center gap-4">
                       <Link href={`/products/${item.product.id}`}>
-                        <h3 className="font-medium hover:underline">{item.product.name}</h3>
+                        <img
+                          src={item.product.image || "/placeholder.svg"}
+                          alt={item.product.name}
+                          className="w-16 h-16 object-cover rounded"
+                        />
                       </Link>
-                      <button
-                        className="text-sm text-red-500 flex items-center mt-1"
-                        onClick={() => removeFromCart(item.product.id)}
-                      >
-                        <Trash2 className="h-3 w-3 mr-1" />
-                        Remove
-                      </button>
+                      <div>
+                        <Link href={`/products/${item.product.id}`}>
+                          <h3 className="font-medium hover:underline">{item.product.name}</h3>
+                        </Link>
+                        <button
+                          className="text-sm text-red-500 flex items-center mt-1"
+                          onClick={() => removeFromCart(item.id)}
+                        >
+                          <Trash2 className="h-3 w-3 mr-1" />
+                          Remove
+                        </button>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="text-center">
-                    <div className="md:hidden text-sm text-gray-500">Price:</div>${item.product.price.toFixed(2)}
-                  </div>
-
-                  <div className="flex items-center justify-center">
-                    <div className="md:hidden text-sm text-gray-500 mr-2">Quantity:</div>
-                    <div className="flex items-center border rounded-md">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                        disabled={item.quantity <= 1}
-                      >
-                        <Minus className="h-4 w-4" />
-                      </Button>
-                      <span className="w-8 text-center">{item.quantity}</span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
+                    <div className="text-center">
+                      <div className="md:hidden text-sm text-gray-500">Price:</div>${item.product.price.toFixed(2)}
                     </div>
-                  </div>
 
-                  <div className="text-right">
-                    <div className="md:hidden text-sm text-gray-500">Total:</div>
-                    <span className="font-medium">${(item.product.price * item.quantity).toFixed(2)}</span>
+                    <div className="flex items-center justify-center">
+                      <div className="md:hidden text-sm text-gray-500 mr-2">Quantity:</div>
+                      <div className="flex items-center border rounded-md">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                          disabled={item.quantity <= 1}
+                        >
+                          <Minus className="h-4 w-4" />
+                        </Button>
+                        <span className="w-8 text-center">{item.quantity}</span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    <div className="text-right">
+                      <div className="md:hidden text-sm text-gray-500">Total:</div>
+                      <span className="font-medium">${(Number(item.product.price) * item.quantity).toFixed(2)}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           <div className="flex justify-between mt-6">

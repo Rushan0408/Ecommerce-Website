@@ -31,7 +31,7 @@ export async function addToCart(productId: string, quantity: number) {
 
 export async function updateCartItem(itemId: string, quantity: number) {
   const response = await fetch(`${API_BASE_URL}/cart/${itemId}`, {
-    method: 'PATCH',
+    method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ quantity }),
     credentials: 'include',

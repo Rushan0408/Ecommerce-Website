@@ -9,7 +9,7 @@ import { useWishlist } from "@/components/wishlist-provider"
 import { useCart } from "@/components/cart-provider"
 
 export default function WishlistPage() {
-  const { wishlistItems, removeFromWishlist, clearWishlist } = useWishlist()
+  const { wishlistItems, removeFromWishlist, clearWishlist, getWishlistItemId } = useWishlist()
   const { addToCart } = useCart()
 
   if (wishlistItems.length === 0) {
@@ -64,19 +64,19 @@ export default function WishlistPage() {
                   .map((_, i) => (
                     <Star
                       key={i}
-                      className={`h-4 w-4 ${i < Math.floor(product.rating) ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}`}
+                      className={`h-4 w-4 ${i < Math.floor(product.rating || 0) ? "text-yellow-500 fill-yellow-500" : "text-gray-300"}`}
                     />
                   ))}
-                <span className="text-sm text-gray-500 ml-1">({product.rating.toFixed(1)})</span>
+                <span className="text-sm text-gray-500 ml-1">({(product.rating || 0).toFixed(1)})</span>
               </div>
               <div className="flex items-center mt-2">
                 {product.onSale ? (
                   <>
-                    <p className="font-bold text-lg text-red-500">${product.price.toFixed(2)}</p>
-                    <p className="text-sm text-gray-500 line-through ml-2">${product.originalPrice?.toFixed(2)}</p>
+                    <p className="font-bold text-lg text-red-500">${(product.price || 0).toFixed(2)}</p>
+                    <p className="text-sm text-gray-500 line-through ml-2">${(product.originalPrice || 0).toFixed(2)}</p>
                   </>
                 ) : (
-                  <p className="font-bold text-lg">${product.price.toFixed(2)}</p>
+                  <p className="font-bold text-lg">${(product.price || 0).toFixed(2)}</p>
                 )}
               </div>
             </CardContent>
@@ -85,7 +85,10 @@ export default function WishlistPage() {
                 <ShoppingBag className="mr-2 h-4 w-4" />
                 Add to Cart
               </Button>
-              <Button variant="outline" size="icon" onClick={() => removeFromWishlist(product.id)}>
+              <Button variant="outline" size="icon" onClick={() => {
+                const itemId = getWishlistItemId(product.id);
+                if (itemId) removeFromWishlist(itemId);
+              }}>
                 <Trash2 className="h-4 w-4" />
                 <span className="sr-only">Remove</span>
               </Button>
