@@ -2,30 +2,31 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { slug: string[] } }
 ) {
-  return await proxyRequest(request, params.path, 'GET');
+  return await proxyRequest(request, params.slug, 'GET');
 }
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { slug: string[] } }
 ) {
-  return await proxyRequest(request, params.path, 'POST');
+  return await proxyRequest(request, params.slug, 'POST');
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { slug: string[] } }
 ) {
-  return await proxyRequest(request, params.path, 'PUT');
+  return await proxyRequest(request, params.slug, 'PUT');
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { path: string[] } }
+  { params }: { params: { slug: string[] } }
 ) {
-  return await proxyRequest(request, params.path, 'DELETE');
+  return await proxyRequest(request, params.slug, 'DELETE');
+  return await proxyRequest(request, params.slug, 'DELETE');
 }
 
 export async function OPTIONS(
