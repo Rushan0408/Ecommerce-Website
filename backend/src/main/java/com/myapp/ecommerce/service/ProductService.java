@@ -19,6 +19,9 @@ import java.util.stream.Collectors;
 public class ProductService {
     private final ProductRepository productRepository;
 
+    private static final BigDecimal DEFAULT_MIN_PRICE = BigDecimal.ZERO;
+    private static final BigDecimal DEFAULT_MAX_PRICE = new BigDecimal("999999.99");
+
     public Page<Product> getProducts(
             String category,
             BigDecimal minPrice,
@@ -28,19 +31,24 @@ public class ProductService {
             int page,
             int size
     ) {
-        Sort.Direction direction = sort.endsWith("-desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        String property = sort.equals("featured") ? "rating" : sort.replace("-asc", "").replace("-desc", "");
-        
+        if (page < 0 || size <= 0) {
+            throw new IllegalArgumentException("Page index must be non-negative and size must be greater than zero.");
+        }
+
+        Sort.Direction direction = (sort != null && sort.endsWith("-desc")) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        String property = (sort == null || sort.isEmpty()) ? "id" :
+                (sort.equals("featured") ? "rating" : sort.replace("-asc", "").replace("-desc", ""));
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, property));
-        
+
         if (category == null && minPrice == null && maxPrice == null && minRating == 0) {
             return productRepository.findByActiveTrue(pageable);
         }
-        
+
         return productRepository.findByFilters(
                 category,
-                minPrice != null ? minPrice : BigDecimal.ZERO,
-                maxPrice != null ? maxPrice : new BigDecimal("999999.99"),
+                minPrice != null ? minPrice : DEFAULT_MIN_PRICE,
+                maxPrice != null ? maxPrice : DEFAULT_MAX_PRICE,
                 minRating,
                 pageable
         );

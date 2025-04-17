@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
+import org.springframework.data.repository.query.Param; 
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -12,17 +13,31 @@ import java.util.List;
 public interface ProductRepository extends MongoRepository<Product, String> {
     Page<Product> findByActiveTrue(Pageable pageable);
     
-    @Query("{ 'active': true, " +
-           "'category': ?0, " +
-           "'price': { $gte: ?1, $lte: ?2 }, " +
-           "'rating': { $gte: ?3 } }")
-    Page<Product> findByFilters(
+    Page<Product> findByActiveTrueAndCategoryContainingAndPriceBetweenAndRatingGreaterThanEqual(
+            @Param("active") boolean active,
+            @Param("category") String category,
+            @Param("minPrice") BigDecimal minPrice,
+            @Param("maxPrice") BigDecimal maxPrice,
+            @Param("minRating") double minRating,
+            Pageable pageable
+    );
+
+    default Page<Product> findByFilters(
             String category,
             BigDecimal minPrice,
             BigDecimal maxPrice,
             double minRating,
             Pageable pageable
-    );
+    ) {
+        return findByActiveTrueAndCategoryContainingAndPriceBetweenAndRatingGreaterThanEqual(
+            true,
+            category != null ? category : "",
+            minPrice != null ? minPrice : BigDecimal.ZERO,
+            maxPrice != null ? maxPrice : new BigDecimal("999999.99"),
+            minRating,
+            pageable
+        );
+    }
 
     List<Product> findByCategoryAndIdNot(String category, String productId);
     
