@@ -27,7 +27,12 @@ public interface ProductRepository extends MongoRepository<Product, String> {
     List<Product> findByCategoryAndIdNot(String category, String productId);
     
     List<Product> findByCategory(String category);
+
+    Page<Product> findByCategoryAndActiveTrue(String category, Pageable pageable);
     
-    @Query(value = "{ 'active': true }", fields = "{ 'category': 1 }")
+    @Query(value = "{}", fields = "{}", count = true)
+    List<String> findAllCategories();
+    
+    @Query(value = "{}", fields = "{_id: 0, category: 1}")
     List<String> findDistinctCategories();
 }

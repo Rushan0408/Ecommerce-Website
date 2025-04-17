@@ -57,7 +57,11 @@ public class ProductService {
     }
 
     public Set<String> getCategories() {
-        return productRepository.findDistinctCategories().stream().collect(Collectors.toSet());
+        // Get all products and extract distinct categories
+        return productRepository.findAll().stream()
+                .filter(product -> product.getCategory() != null && !product.getCategory().isEmpty())
+                .map(Product::getCategory)
+                .collect(Collectors.toSet());
     }
 
     public Product createProduct(Product product) {
@@ -76,5 +80,19 @@ public class ProductService {
         Product product = getProduct(id);
         product.setActive(false);
         productRepository.save(product);
+    }
+
+    public Page<Product> getProductsByCategories(String category, String sort, int page, int size) {
+    Sort.Direction direction = sort.endsWith("-desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+    String property = sort.equals("featured") ? "rating" : sort.replace("-asc", "").replace("-desc", "");
+    Pageable pageable = PageRequest.of(page, size, Sort.by(direction, property));
+    if (category == null || category.isEmpty()) {
+        return productRepository.findByActiveTrue(pageable);
+    }
+    return productRepository.findByCategoryAndActiveTrue(category, pageable);
+}
+
+    public List<Product> getProductsByCategories(String category) {
+        return productRepository.findByCategory(category);
     }
 }

@@ -20,7 +20,7 @@ import type { Product } from "@/lib/types"
 
 export default function ProductsPage() {
   const searchParams = useSearchParams()
-  const { addToCart } = useCart()
+  const { addToCart, cartItems, isLoading: isCartLoading } = useCart()
 
   // Get initial category from URL if present
   const initialCategory = searchParams.get("category") || ""
@@ -28,18 +28,33 @@ export default function ProductsPage() {
   // State for filters and loading
   const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory)
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000])
   const [minRating, setMinRating] = useState<number>(0)
   const [sortOption, setSortOption] = useState<string>("featured")
   const [isLoading, setIsLoading] = useState(true)
+  const [page, setPage] = useState(0)
+  const [size] = useState(12) // Number of products per page
+  const [totalPages, setTotalPages] = useState(1)
 
   // Get categories
   const [categories, setCategories] = useState<string[]>([])
 
+  // Check if product is in cart
+  const isInCart = (productId: string) => {
+    return cartItems.some(item => item.productId === productId)
+  }
+
+  // Get cart item quantity
+  const getCartItemQuantity = (productId: string) => {
+    const item = cartItems.find(item => item.productId === productId)
+    return item ? item.quantity : 0
+  }
+
   useEffect(() => {
     const loadCategories = async () => {
       try {
+        console.log('Fetching categories...')
         const categories = await productsApi.getCategories()
+        console.log('Categories fetched successfully:', categories)
         setCategories(categories)
       } catch (error) {
         console.error('Failed to load categories:', error)
@@ -48,28 +63,50 @@ export default function ProductsPage() {
     loadCategories()
   }, [])
 
-  // Fetch and filter products
+   // Fetch and filter products
   useEffect(() => {
     const loadProducts = async () => {
       setIsLoading(true)
       try {
-        const products = await productsApi.getProducts({
+        console.log('Fetching products with params:', {
           category: selectedCategory,
-          minPrice: priceRange[0],
-          maxPrice: priceRange[1],
           minRating,
           sort: sortOption,
+          page,
+          size,
         })
-        setFilteredProducts(products)
+        
+        const { products: fetchedProducts, total, totalPages, currentPage } = await productsApi.getProducts({
+          category: selectedCategory || undefined, // Send undefined instead of empty string
+          minRating,
+          sort: sortOption,
+          page,
+          size,
+        })
+        
+        console.log('Products fetched successfully:', { 
+          products: fetchedProducts, 
+          total, 
+          totalPages, 
+          currentPage,
+          count: fetchedProducts?.length
+        })
+        
+        if (!fetchedProducts || fetchedProducts.length === 0) {
+          console.warn('No products received from server');
+        }
+        
+        setFilteredProducts(fetchedProducts || [])
+        setTotalPages(totalPages)
       } catch (error) {
-        console.error('Failed to load products:', error)
+        console.error('Failed to load products:', error);
         setFilteredProducts([])
       } finally {
         setIsLoading(false)
       }
     }
     loadProducts()
-  }, [selectedCategory, priceRange, minRating, sortOption])
+  }, [selectedCategory, minRating, sortOption, page, size])
 
   return (
     <div className="container px-4 py-8 md:py-12">
@@ -113,27 +150,6 @@ export default function ProductsPage() {
                           </Label>
                         </div>
                       ))}
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Price Range Filter */}
-                  <div>
-                    <h3 className="font-medium mb-4 text-white">Price Range</h3>
-                    <div className="space-y-4">
-                      <Slider
-                        min={0}
-                        max={1000}
-                        step={10}
-                        value={priceRange}
-                        onValueChange={(value) => setPriceRange(value as [number, number])}
-                        className="[&_[role=slider]]:bg-white [&_[role=slider]]:border-white [&_[role=track]]:bg-white/50"
-                      />
-                      <div className="flex justify-between text-sm text-white">
-                        <span>${priceRange[0]}</span>
-                        <span>${priceRange[1]}</span>
-                      </div>
                     </div>
                   </div>
 
@@ -202,25 +218,6 @@ export default function ProductsPage() {
           <Separator />
 
           <div>
-            <h3 className="font-medium mb-4">Price Range</h3>
-            <div className="space-y-4">
-              <Slider
-                defaultValue={[0, 1000]}
-                max={1000}
-                step={10}
-                value={priceRange}
-                onValueChange={(value) => setPriceRange(value as [number, number])}
-              />
-              <div className="flex items-center justify-between">
-                <span>${priceRange[0]}</span>
-                <span>${priceRange[1]}</span>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          <div>
             <h3 className="font-medium mb-4">Rating</h3>
             <RadioGroup value={minRating.toString()} onValueChange={(value) => setMinRating(Number(value))}>
               <div className="flex items-center space-x-2">
@@ -275,7 +272,7 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          {isLoading ? (
+          {isLoading || isCartLoading ? (
             <div className="text-center py-12">
               <h2 className="text-xl font-medium">Loading products...</h2>
             </div>
@@ -310,13 +307,20 @@ export default function ProductsPage() {
                         ))}
                       <span className="text-sm text-gray-500 ml-1">({product.rating.toFixed(1)})</span>
                     </div>
-                    <p className="font-bold text-lg mt-2">${product.price.toFixed(2)}</p>
+                    <p className="font-bold text-lg mt-2">${typeof product.price === 'number' ? product.price.toFixed(2) : product.price}</p>
                   </CardContent>
                   <CardFooter className="p-4 pt-0">
-                    <Button className="w-full" onClick={() => addToCart(product, 1)}>
-                      <ShoppingBag className="mr-2 h-4 w-4" />
-                      Add to Cart
-                    </Button>
+                    {isInCart(product.id) ? (
+                      <Button variant="outline" className="w-full bg-green-50 text-green-600 border-green-200">
+                        <ShoppingBag className="mr-2 h-4 w-4" />
+                        In Cart ({getCartItemQuantity(product.id)})
+                      </Button>
+                    ) : (
+                      <Button className="w-full" onClick={() => addToCart(product, 1)}>
+                        <ShoppingBag className="mr-2 h-4 w-4" />
+                        Add to Cart
+                      </Button>
+                    )}
                   </CardFooter>
                 </Card>
               ))}

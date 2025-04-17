@@ -8,6 +8,7 @@ import * as authApi from "@/lib/api/auth"
 
 type AuthContextType = {
   user: authApi.User | null
+  token: string | null
   login: (email: string, password: string) => Promise<boolean>
   register: (name: string, email: string, password: string) => Promise<boolean>
   logout: () => Promise<void>
@@ -18,17 +19,33 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<authApi.User | null>(null)
+  const [token, setToken] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
+  
+  // Initialize token from localStorage
+  useEffect(() => {
+    const storedToken = localStorage.getItem('auth_token')
+    if (storedToken) {
+      setToken(storedToken)
+    }
+  }, [])
 
   // Check for current user session
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const user = await authApi.getCurrentUser()
-        setUser(user)
+        if (user) {
+          console.log('Current user found:', user)
+          setUser(user)
+        } else {
+          console.log('No current user found')
+          setUser(null)
+        }
       } catch (error) {
         console.error("Failed to get current user:", error)
+        setUser(null)
       } finally {
         setIsLoading(false)
       }
@@ -39,8 +56,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const { user } = await authApi.login({ email, password })
+      const { user, token } = await authApi.login({ email, password })
       setUser(user)
+      setToken(token)
+      
+      // Store token in localStorage
+      localStorage.setItem('auth_token', token)
+      
       return true
     } catch (error) {
       console.error("Login failed:", error)
@@ -55,17 +77,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const result = await authApi.register({ name, email, password });
       console.log('Register API result:', result);
       
-      // Update the user state with the returned user data
-      if (result && result.user) {
-        setUser(result.user);
+      // For registration, we don't need to set the user state or token
+      // since we're redirecting to the login page
+      // This prevents the unnecessary call to /auth/me
+      
+      // Just return true to indicate successful registration
+      if (result) {
         return true;
       } else {
-        console.error('Registration returned invalid user data');
+        console.error('Registration returned invalid data:', result);
         return false;
       }
     } catch (error) {
       console.error("Registration failed:", error);
-      return false;
+      throw error; // Rethrow so the page component can handle specific errors
     }
   }
 
@@ -73,6 +98,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authApi.logout()
       setUser(null)
+      setToken(null)
+      
+      // Remove token from localStorage
+      localStorage.removeItem('auth_token')
+      
       router.push("/")
     } catch (error) {
       console.error("Logout failed:", error)
@@ -83,6 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{
         user,
+        token,
         login,
         register,
         logout,

@@ -24,7 +24,10 @@ export async function login(credentials: LoginCredentials) {
     credentials: 'include',
   });
   
-  if (!response.ok) throw new Error('Login failed');
+  if (!response.ok) {
+    throw new Error('Login failed');
+    console.log("server didnt say ok");
+  }
   return response.json() as Promise<{ user: User; token: string }>;
 }
 
@@ -53,11 +56,11 @@ export async function register(data: RegisterData) {
       throw new Error(responseData.message || 'Registration failed');
     }
 
-    // Extract the token from the response
-    const { token } = responseData;
+    // Extract the token and user from the response
+    const { token, user } = responseData;
     
-    // Get the current user information
-    const user = await getCurrentUser();
+    // Return the user and token directly from the response
+    // without making an additional request to getCurrentUser
     return { user, token };
   } catch (error) {
     console.error('Registration error:', error);
@@ -66,8 +69,21 @@ export async function register(data: RegisterData) {
 }
 
 export async function logout() {
+  // Get token from localStorage
+  const token = localStorage.getItem('auth_token');
+  
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json'
+  };
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
   const response = await fetch(`${API_BASE_URL}/auth/logout`, {
     method: 'POST',
+    headers,
     credentials: 'include',
   });
   
@@ -76,7 +92,20 @@ export async function logout() {
 }
 
 export async function getCurrentUser() {
+  // Get token from localStorage
+  const token = localStorage.getItem('auth_token');
+  
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json'
+  };
+  
+  // Add Authorization header if token exists
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  
   const response = await fetch(`${API_BASE_URL}/auth/me`, {
+    headers,
     credentials: 'include',
   });
   

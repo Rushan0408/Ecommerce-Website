@@ -28,6 +28,18 @@ export default function RegisterPage() {
     e.preventDefault()
     setError("")
 
+    // Validate name length (min 3 characters)
+    if (name.length < 3) {
+      setError("Name must be at least 3 characters long")
+      return
+    }
+
+    // Validate password length (min 6 characters)
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long")
+      return
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match")
       return
@@ -40,8 +52,8 @@ export default function RegisterPage() {
       const success = await register(name, email, password)
       
       if (success) {
-        // Redirect to home page on successful registration
-        router.push("/")
+        // Redirect to login page on successful registration
+        router.push("/login")
       } else {
         // If register returns false but doesn't throw an error
         setError("Registration failed. Please try again.")
@@ -70,7 +82,15 @@ export default function RegisterPage() {
 
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" placeholder="" value={name} onChange={(e) => setName(e.target.value)} required />
+              <Input 
+                id="name" 
+                placeholder="Minimum 3 characters" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                required 
+                minLength={3}
+                className="border-2 border-gray-300 focus:border-primary" 
+              />
             </div>
 
             <div className="space-y-2">
@@ -78,10 +98,11 @@ export default function RegisterPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder=""
+                placeholder="Your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="border-2 border-gray-300 focus:border-primary"
               />
             </div>
 
@@ -91,10 +112,12 @@ export default function RegisterPage() {
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder=""
+                  placeholder="Minimum 6 characters"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  minLength={6}
+                  className="border-2 border-gray-300 focus:border-primary"
                 />
                 <Button
                   type="button"
@@ -114,10 +137,11 @@ export default function RegisterPage() {
               <Input
                 id="confirm-password"
                 type="password"
-                placeholder=""
+                placeholder="Confirm your password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
+                className="border-2 border-gray-300 focus:border-primary"
               />
             </div>
           </CardContent>

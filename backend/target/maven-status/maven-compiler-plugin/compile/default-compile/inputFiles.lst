@@ -5,10 +5,12 @@ C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\model\W
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\dto\AuthRequest.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\config\DataSeeder.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\controller\ProductController.java
+C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\config\CorsFilter.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\controller\WishlistController.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\exception\ApiException.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\repository\CartItemRepository.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\config\SecurityConfig.java
+C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\config\WebConfig.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\service\CartService.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\repository\UserRepository.java
 C:\Users\rusha\Downloads\myapp\backend\src\main\java\com\myapp\ecommerce\repository\WishlistItemRepository.java
