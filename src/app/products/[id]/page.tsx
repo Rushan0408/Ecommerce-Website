@@ -150,14 +150,14 @@ export default function ProductPage() {
           <div className="flex items-center">
             {product.onSale ? (
               <>
-                <div className="text-3xl font-bold text-red-500">${product.price.toFixed(2)}</div>
-                <div className="text-xl text-gray-500 line-through ml-2">${product.originalPrice?.toFixed(2)}</div>
+                <div className="text-3xl font-bold text-red-500">${Number(product.price).toFixed(2)}</div>
+                <div className="text-xl text-gray-500 line-through ml-2">${product.originalPrice ? Number(product.originalPrice).toFixed(2) : ''}</div>
                 <div className="ml-2 bg-red-100 text-red-800 px-2 py-1 rounded-md text-sm font-medium">
-                  {Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)}% OFF
+                  {Math.round(((Number(product.originalPrice!) - Number(product.price)) / Number(product.originalPrice!)) * 100)}% OFF
                 </div>
               </>
             ) : (
-              <div className="text-3xl font-bold">${product.price.toFixed(2)}</div>
+              <div className="text-3xl font-bold">${Number(product.price).toFixed(2)}</div>
             )}
           </div>
 
@@ -323,13 +323,13 @@ export default function ProductPage() {
                 <div className="flex items-center mt-2">
                   {relatedProduct.onSale ? (
                     <>
-                      <p className="font-bold text-lg text-red-500">${relatedProduct.price.toFixed(2)}</p>
+                      <p className="font-bold text-lg text-red-500">${Number(relatedProduct.price).toFixed(2)}</p>
                       <p className="text-sm text-gray-500 line-through ml-2">
-                        ${relatedProduct.originalPrice?.toFixed(2)}
+                        ${relatedProduct.originalPrice ? Number(relatedProduct.originalPrice).toFixed(2) : ''}
                       </p>
                     </>
                   ) : (
-                    <p className="font-bold text-lg">${relatedProduct.price.toFixed(2)}</p>
+                    <p className="font-bold text-lg">${Number(relatedProduct.price).toFixed(2)}</p>
                   )}
                 </div>
                 <Button className="w-full mt-3" onClick={() => addToCart(relatedProduct, 1)}>
@@ -344,4 +344,3 @@ export default function ProductPage() {
     </div>
   )
 }
-

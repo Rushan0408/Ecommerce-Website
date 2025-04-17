@@ -25,18 +25,46 @@ export default function ProductsPage() {
   // Get initial category from URL if present
   const initialCategory = searchParams.get("category") || ""
 
-  // State for filters and loading
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([])
+  // State for all products
+  const [allProducts, setAllProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory)
   const [minRating, setMinRating] = useState<number>(0)
   const [sortOption, setSortOption] = useState<string>("featured")
   const [isLoading, setIsLoading] = useState(true)
-  const [page, setPage] = useState(0)
-  const [size] = useState(12) // Number of products per page
-  const [totalPages, setTotalPages] = useState(1)
 
-  // Get categories
-  const [categories, setCategories] = useState<string[]>([])
+  // Compute unique categories from all products
+  const categories = Array.from(new Set(allProducts.map((p) => p.category)))
+
+  // Fetch all products once on mount
+  useEffect(() => {
+    const fetchAllProducts = async () => {
+      setIsLoading(true)
+      try {
+        // Use getProducts with no filters if getAllProducts does not exist
+        const { products } = await productsApi.getProducts({})
+        setAllProducts(products || [])
+      } catch (error) {
+        setAllProducts([])
+        console.error('Failed to load products:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchAllProducts()
+  }, [])
+
+  // --- Frontend filtering and sorting ---
+  const filteredProducts = allProducts
+    .filter((product) =>
+      (!selectedCategory || product.category === selectedCategory) &&
+      product.rating >= minRating
+    )
+    .sort((a, b) => {
+      if (sortOption === "price-low-high") return Number(a.price) - Number(b.price)
+      if (sortOption === "price-high-low") return Number(b.price) - Number(a.price)
+      if (sortOption === "rating") return Number(b.rating) - Number(a.rating)
+      return 0 // featured or default
+    })
 
   // Check if product is in cart
   const isInCart = (productId: string) => {
@@ -48,65 +76,6 @@ export default function ProductsPage() {
     const item = cartItems.find(item => item.productId === productId)
     return item ? item.quantity : 0
   }
-
-  useEffect(() => {
-    const loadCategories = async () => {
-      try {
-        console.log('Fetching categories...')
-        const categories = await productsApi.getCategories()
-        console.log('Categories fetched successfully:', categories)
-        setCategories(categories)
-      } catch (error) {
-        console.error('Failed to load categories:', error)
-      }
-    }
-    loadCategories()
-  }, [])
-
-   // Fetch and filter products
-  useEffect(() => {
-    const loadProducts = async () => {
-      setIsLoading(true)
-      try {
-        console.log('Fetching products with params:', {
-          category: selectedCategory,
-          minRating,
-          sort: sortOption,
-          page,
-          size,
-        })
-        
-        const { products: fetchedProducts, total, totalPages, currentPage } = await productsApi.getProducts({
-          category: selectedCategory || undefined, // Send undefined instead of empty string
-          minRating,
-          sort: sortOption,
-          page,
-          size,
-        })
-        
-        console.log('Products fetched successfully:', { 
-          products: fetchedProducts, 
-          total, 
-          totalPages, 
-          currentPage,
-          count: fetchedProducts?.length
-        })
-        
-        if (!fetchedProducts || fetchedProducts.length === 0) {
-          console.warn('No products received from server');
-        }
-        
-        setFilteredProducts(fetchedProducts || [])
-        setTotalPages(totalPages)
-      } catch (error) {
-        console.error('Failed to load products:', error);
-        setFilteredProducts([])
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    loadProducts()
-  }, [selectedCategory, minRating, sortOption, page, size])
 
   return (
     <div className="container px-4 py-8 md:py-12">
@@ -331,4 +300,3 @@ export default function ProductsPage() {
     </div>
   )
 }
-
