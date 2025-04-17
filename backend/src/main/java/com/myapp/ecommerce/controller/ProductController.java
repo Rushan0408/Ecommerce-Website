@@ -58,7 +58,7 @@ public class ProductController {
             }
         }
 
-        return ResponseEntity.ok(productService.getProducts(category, minPrice, maxPrice, minRating, sort, page, size));
+        return ResponseEntity.ok(productService.getProducts(category, minPrice, maxPrice, minRating, page, size));
     }
 
     @GetMapping("/{id}")

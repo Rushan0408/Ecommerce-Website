@@ -27,7 +27,6 @@ public class ProductService {
             BigDecimal minPrice,
             BigDecimal maxPrice,
             double minRating,
-            String sort,
             int page,
             int size
     ) {
@@ -35,11 +34,8 @@ public class ProductService {
             throw new IllegalArgumentException("Page index must be non-negative and size must be greater than zero.");
         }
 
-        Sort.Direction direction = (sort != null && sort.endsWith("-desc")) ? Sort.Direction.DESC : Sort.Direction.ASC;
-        String property = (sort == null || sort.isEmpty()) ? "id" :
-                (sort.equals("featured") ? "rating" : sort.replace("-asc", "").replace("-desc", ""));
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, property));
+        Pageable pageable = PageRequest.of(page, size);
 
         if (category == null && minPrice == null && maxPrice == null && minRating == 0) {
             return productRepository.findByActiveTrue(pageable);

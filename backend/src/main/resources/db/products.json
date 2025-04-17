@@ -1,149 +1,102 @@
 [
   {
-    "name": "iPhone 14 Pro",
-    "description": "Latest iPhone with advanced camera system",
-    "price": 999.99,
-    "originalPrice": 1099.99,
-    "category": "Electronics",
-    "image": "https://example.com/iphone14pro.jpg",
-    "rating": 4.8,
+    "id": "p1001",
+    "name": "Noise Cancelling Earbuds",
+    "description": "Wireless earbuds with premium noise cancelling features",
+    "price": 149.99,
+    "originalPrice": 179.99,
+    "category": "Accessories",
+    "image": "https://via.placeholder.com/400x300?text=Earbuds",
+    "rating": 4.3,
     "onSale": true,
     "specifications": {
-      "storage": "256GB",
-      "color": "Space Black",
-      "screen": "6.1-inch"
+      "color": "White",
+      "battery": "30h"
     },
-    "reviews": [
-      {
-        "userId": "user1",
-        "userName": "John Doe",
-        "rating": 5,
-        "comment": "Great phone!",
-        "createdAt": "2025-04-15T12:00:00Z"
-      }
-    ],
-    "stock": 50,
+    "reviews": [],
+    "stock": 40,
     "active": true,
-    "createdAt": "2025-04-15T00:00:00Z",
-    "updatedAt": "2025-04-15T00:00:00Z"
+    "createdAt": "2025-04-16T00:00:00Z",
+    "updatedAt": "2025-04-16T00:00:00Z"
   },
   {
-    "name": "Samsung Galaxy S23",
-    "description": "Premium Android smartphone",
-    "price": 899.99,
-    "originalPrice": 999.99,
-    "category": "Electronics",
-    "image": "https://example.com/galaxys23.jpg",
-    "rating": 4.7,
+    "id": "p1002",
+    "name": "Smart Refrigerator",
+    "description": "Smart fridge with touchscreen and voice control",
+    "price": 1999.99,
+    "originalPrice": 2199.99,
+    "category": "Home Appliances",
+    "image": "https://via.placeholder.com/400x300?text=Fridge",
+    "rating": 4.6,
     "onSale": false,
     "specifications": {
-      "storage": "512GB",
-      "color": "Phantom Black",
-      "screen": "6.8-inch"
+      "capacity": "500L",
+      "color": "Silver"
+    },
+    "reviews": [],
+    "stock": 12,
+    "active": true,
+    "createdAt": "2025-04-16T00:00:00Z",
+    "updatedAt": "2025-04-16T00:00:00Z"
+  },
+  {
+    "id": "p1003",
+    "name": "4K Action Camera",
+    "description": "Waterproof camera with 4K recording and image stabilization",
+    "price": 299.99,
+    "originalPrice": 349.99,
+    "category": "Electronics",
+    "image": "https://via.placeholder.com/400x300?text=Action+Camera",
+    "rating": 4.5,
+    "onSale": true,
+    "specifications": {
+      "resolution": "4K",
+      "waterproof": "Yes"
+    },
+    "reviews": [],
+    "stock": 25,
+    "active": true,
+    "createdAt": "2025-04-16T00:00:00Z",
+    "updatedAt": "2025-04-16T00:00:00Z"
+  },
+  {
+    "id": "p1004",
+    "name": "Portable Projector",
+    "description": "Compact projector for home and travel use",
+    "price": 199.99,
+    "originalPrice": 249.99,
+    "category": "Electronics",
+    "image": "https://via.placeholder.com/400x300?text=Projector",
+    "rating": 4.1,
+    "onSale": false,
+    "specifications": {
+      "resolution": "1080p",
+      "battery": "2h"
     },
     "reviews": [],
     "stock": 30,
     "active": true,
-    "createdAt": "2025-04-15T00:00:00Z",
-    "updatedAt": "2025-04-15T00:00:00Z"
+    "createdAt": "2025-04-16T00:00:00Z",
+    "updatedAt": "2025-04-16T00:00:00Z"
   },
   {
-    "name": "Wireless Bluetooth Headphones",
-    "description": "Premium wireless headphones with noise cancellation",
-    "price": 199.99,
-    "category": "Electronics",
-    "image": "https://via.placeholder.com/400x300?text=Headphones",
-    "rating": 4.5,
-    "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
-  },
-  {
-    "name": "Smartwatch Series 5",
-    "description": "Latest smartwatch with health tracking features",
-    "price": 299.99,
-    "category": "Electronics",
-    "image": "https://via.placeholder.com/400x300?text=Smartwatch",
-    "rating": 4.8,
-    "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
-  },
-  {
-    "name": "Gaming Laptop",
-    "description": "High-performance gaming laptop with RTX 3060",
-    "price": 1299.99,
-    "category": "Electronics",
-    "image": "https://via.placeholder.com/400x300?text=Laptop",
-    "rating": 4.7,
-    "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
-  },
-  {
-    "name": "Smart LED TV 55 inch",
-    "description": "4K Ultra HD Smart TV with HDR",
-    "price": 899.99,
-    "category": "Electronics",
-    "image": "https://via.placeholder.com/400x300?text=TV",
-    "rating": 4.6,
-    "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
-  },
-  {
-    "name": "Coffee Maker",
-    "description": "Automatic coffee maker with programmable settings",
-    "price": 149.99,
+    "id": "p1005",
+    "name": "Smart Air Purifier",
+    "description": "HEPA smart purifier with app control and air quality monitor",
+    "price": 249.99,
+    "originalPrice": 279.99,
     "category": "Home Appliances",
-    "image": "https://via.placeholder.com/400x300?text=Coffee+Maker",
-    "rating": 4.4,
+    "image": "https://via.placeholder.com/400x300?text=Air+Purifier",
+    "rating": 4.9,
+    "onSale": true,
+    "specifications": {
+      "filter": "HEPA",
+      "coverage": "500 sq ft"
+    },
+    "reviews": [],
+    "stock": 18,
     "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
-  },
-  {
-    "name": "Air Fryer",
-    "description": "Healthy cooking air fryer with multiple functions",
-    "price": 129.99,
-    "category": "Home Appliances",
-    "image": "https://via.placeholder.com/400x300?text=Air+Fryer",
-    "rating": 4.3,
-    "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
-  },
-  {
-    "name": "Fitness Tracker",
-    "description": "Waterproof fitness tracker with heart rate monitoring",
-    "price": 79.99,
-    "category": "Wearables",
-    "image": "https://via.placeholder.com/400x300?text=Fitness+Tracker",
-    "rating": 4.7,
-    "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
-  },
-  {
-    "name": "Smart Bulbs Pack",
-    "description": "Set of 4 smart LED bulbs with voice control",
-    "price": 59.99,
-    "category": "Home Automation",
-    "image": "https://via.placeholder.com/400x300?text=Smart+Bulbs",
-    "rating": 4.5,
-    "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
-  },
-  {
-    "name": "Wireless Mouse",
-    "description": "Ergonomic wireless mouse with RGB lighting",
-    "price": 29.99,
-    "category": "Accessories",
-    "image": "https://via.placeholder.com/400x300?text=Mouse",
-    "rating": 4.2,
-    "active": true,
-    "createdAt": "2025-04-17T01:40:12.000Z",
-    "updatedAt": "2025-04-17T01:40:12.000Z"
+    "createdAt": "2025-04-16T00:00:00Z",
+    "updatedAt": "2025-04-16T00:00:00Z"
   }
 ]

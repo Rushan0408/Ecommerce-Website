@@ -29,7 +29,7 @@ export default function ProductsPage() {
   const [allProducts, setAllProducts] = useState<Product[]>([])
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory)
   const [minRating, setMinRating] = useState<number>(0)
-  const [sortOption, setSortOption] = useState<string>("featured")
+  const [sortOption, setSortOption] = useState<string>("price-low-high")
   const [isLoading, setIsLoading] = useState(true)
 
   // Compute unique categories from all products
@@ -63,7 +63,7 @@ export default function ProductsPage() {
       if (sortOption === "price-low-high") return Number(a.price) - Number(b.price)
       if (sortOption === "price-high-low") return Number(b.price) - Number(a.price)
       if (sortOption === "rating") return Number(b.rating) - Number(a.rating)
-      return 0 // featured or default
+      return 0
     })
 
   // Check if product is in cart
@@ -233,7 +233,6 @@ export default function ProductsPage() {
                 onChange={(e) => setSortOption(e.target.value)}
                 className="p-2 border rounded-md bg-transparent text-black"
               >
-                <option value="featured">Featured</option>
                 <option value="price-low-high">Price: Low to High</option>
                 <option value="price-high-low">Price: High to Low</option>
                 <option value="rating">Rating</option>
